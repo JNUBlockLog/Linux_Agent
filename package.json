@@ -1,0 +1,25 @@
+{
+  "name": "linux_agent",
+  "version": "1.0.0",
+  "description": "## 리눅스 에이전트가 수집하는 정보",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jnublocklog/linux_agent.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jnublocklog/linux_agent/issues"
+  },
+  "homepage": "https://github.com/jnublocklog/linux_agent#readme",
+  "dependencies": {
+    "composer-client": "^0.19.4",
+    "express": "^4.16.3",
+    "moment": "^2.22.1",
+    "systeminformation": "^3.40.0"
+  }
+}
