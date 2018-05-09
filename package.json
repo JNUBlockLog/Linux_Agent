@@ -4,7 +4,7 @@
   "description": "## 리눅스 에이전트가 수집하는 정보",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node index.js"
   },
   "repository": {
     "type": "git",
