@@ -1,20 +1,30 @@
 const composer = require('composer-client');
 const moment = require('moment');
 const si = require('systeminformation');
-
-const readline = require('readline');;
-const rl = readline.createInterface({
-    input:process.stdin,
-    output:process.stdout
-});
-
 var cardName = "admin@factory-network";
 
 bizNetworkConnection = new composer.BusinessNetworkConnection();
 let connect = '' // BusinessNetworkDefinition
-bizNetworkConnection.connect(cardName).then((result)=>{
-    connect = result
-})
+
+
+let deviceID = "Device:1526579386"
+
+bizNetworkConnection.on('event', (event)=>{
+    if(event.$type == 'refreshRequest'){
+        console.log("refresh Event");
+        refreshDevice("Device Type", "Device Desc")
+    }
+    else if(event.$type = 'deviceUpdated'){
+        console.log(event)
+    }
+});
+
+async function refreshRequest(connection){
+    const factory = connection.getFactory();
+    const transaction = factory.newTransaction('org.factory', 'refreshDevice');
+    await bizNetworkConnection.submitTransaction(transaction);
+    console.log("Event Submitted");
+}
 
 try{
     main()
@@ -23,15 +33,8 @@ try{
 }
 
 async function main(){
-    device = {
-        'deviceType':"A device",
-        'deviceDesc':"Logistics",
-        'deviceUser':"WorkerID:1",
-        'deviceManager':"WorkerID:1"
-    }
-    let deviceInfo = await getDeviceInformation(device);
-    //await addDevice(deviceInfo);
-    await readAllDevice();
+    let connection = await bizNetworkConnection.connect(cardName)
+    await refreshRequest(connection);
 }
 
 
@@ -45,7 +48,7 @@ function findMACbyiface(nics, iface){
         function(nics){return nics.iface == iface}
     )
 }
-async function getDeviceInformation(device){
+async function getDeviceInformation(){
     let cpudata = await si.cpu();
     let cpu = cpudata.manufacturer + cpudata.brand +' ' + cpudata.speed + 'GHz'
     let nic = await si.networkInterfaces();
@@ -55,43 +58,29 @@ async function getDeviceInformation(device){
     let processAll = process.all;
     let processRunning = process.running;
     let processes = `All: ${processAll}, Running: ${processRunning}`
-    let deviceType = device.deviceType;
-    let deviceDesc = device.deviceDesc;
-    let deviceUser = device.deviceUser;
-    let deviceManager = device.deviceManager
 
     return {
-        'cpu':cpu,
-        'mac':mac,
-        'processes':processes,
-        'deviceType':deviceType,
-        'deviceDesc':deviceDesc,
-        'deviceUser':deviceUser,
-        'deviceManager':deviceManager
+        'CPUInfomation':cpu,
+        'MACAddress':mac,
+        'Processes':processes
     }
 }
-async function addDevice(device){
-    let deviceRegistry = await bizNetworkConnection.getAssetRegistry('org.factory.Device');
-    let factory = connect.getFactory();
-    let newDevice = factory.newResource('org.factory', 'Device', `Device:${getCurrentTimestamp()}`)
-    let deviceUser = factory.newRelationship('org.factory', 'Worker', device.deviceUser)
-    let deviceManager = factory.newRelationship('org.factory', 'Worker', device.deviceManager)
-    newDevice.CPUInfomation = device.cpu;
-    newDevice.MACAddress = device.mac,
-    newDevice.Processes = 1//device.processes,
-    newDevice.DeviceType = device.deviceType,
-    newDevice.DeviceDesc = device.deviceDesc,
-    newDevice.DeviceUser = deviceUser,
-    newDevice.DeviceManager = deviceManager
-    console.log(newDevice);
-    await deviceRegistry.add(newDevice);
-    console.log("Device Added.")
+async function refreshDevice(DeviceType, DeviceDesc){
+    let connect = await bizNetworkConnection.connect(cardName)
+    let deviceInfo = await getDeviceInformation();
+    console.log("Device Refresh..")
+    const factory = connect.getFactory();
+    const transaction = factory.newTransaction('org.factory', 'updateDeviceStatus');
+    let device = factory.newRelationship('org.factory', 'Device', deviceID)
+    transaction.device = device;
+    transaction.CPUInfomation = deviceInfo.CPUInfomation;
+    transaction.MACAddress = deviceInfo.MACAddress;
+    transaction.Processes = deviceInfo.Processes;
+    transaction.DeviceType = DeviceType;
+    transaction.DeviceDesc = DeviceDesc;
+
+    await bizNetworkConnection.submitTransaction(transaction);
 }
-async function addMaterialsWorker(){}
-async function addLogisticsWorker(){}
-async function addAssemblyWorker(){}
-async function addElecronicUnit(){}
-async function addPCB(){}
 
 async function readAllDevice(){
     let deviceRegistry = await bizNetworkConnection.getAssetRegistry('org.factory.Device');
@@ -110,14 +99,3 @@ async function readAllDevice(){
         console.log(`deviceManager: ${list[i].DeviceManager}`)
     }
 }
-async function readAllMaterialsWorker(){}
-async function readAllLogisticsWorker(){}
-async function readAllAssemblyWorker(){}
-async function readAllElecronicUnit(){}
-async function readAllPCB(){}
-
-
-async function issueIdentityToMaterialsWorker(){}
-async function issueIdentityToLogisticsWorker(){}
-async function issueIdentityToAssemblyWorker(){}
-async function issueIdentityToElecronicUnit(){}
