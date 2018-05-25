@@ -1,9 +1,8 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify'
-//import App from './SimpleRoute.vue'
 import App from './Baseline.vue'
 import VueRouter from 'vue-router'
-
+import axios from 'axios'
 import ContainerMain from './ContainerMain.vue'
 import ContainerAPList from './ContainerAPList.vue'
 import ContainerDeviceList from './ContainerDeviceList.vue'
@@ -12,7 +11,7 @@ import ContainerNetworkOverview from './ContainerNetworkOverview.vue'
 
 Vue.use(Vuetify)
 Vue.use(VueRouter)
-
+Vue.prototype.$axios = axios;
 
 const router = new VueRouter({
   routes:[{

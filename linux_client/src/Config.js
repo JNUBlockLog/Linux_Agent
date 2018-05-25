@@ -1,4 +1,4 @@
-var BASE_URL = "localhost:3000/api";
+var BASE_URL = "http://localhost:3000/api";
 
 export default {
     DeviceList : BASE_URL + "/org.factory.Device"
