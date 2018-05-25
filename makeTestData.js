@@ -28,11 +28,17 @@ try{
 
 async function main(){
     let connection = await bizNetworkConnection.connect(cardName)
+    console.log("[INFO] BizNetworkConnection Connected");
     await addDepartment(connection); // 4 Department : Security, Logistics, Materials, Assembly
+    console.log("[INFO] Department added");
     await addDeviceManager(connection); // 3 Device Manager : Kim A, Lee B, Park C
+    console.log("[INFO] DeviceManager Added");
     await addSecurityManager(connection); // 3 Security Manager : Jeong S, Kang S, Ju S
+    console.log("[INFO] SecurityManager Added");
     await addWorker(connection);
+    console.log("[INFO] Worker Added");
     await addDevices(connection);
+    console.log("[INFO] Devices Added");
 
     await readAllDevice();
     console.log('------------')
@@ -55,7 +61,11 @@ async function addDepartment(connect){
     MaterialsDepartment.name = "Materials"
     let AssemblyDepartment = factory.newResource('org.factory', 'Department', "4");
     AssemblyDepartment.name = "Assembly"
+    try{
     await registry.addAll([SecurityDepartment, LogisticsDepartment, MaterialsDepartment, AssemblyDepartment])
+    }catch(e){
+        console.log(e)
+    }
 }
 // 3 Device Manager : Kim A, Lee B, Park C
 async function addDeviceManager(connect){
@@ -73,8 +83,12 @@ async function addDeviceManager(connect){
     DManagerA.name = "Kim A"
     DManagerB.name = "Lee B"
     DManagerC.name = "Park C"
-    
+    try{
     await registry.addAll([DManagerA,DManagerB,DManagerC])
+    }catch(e){
+        console.log(e)
+    }
+
 }
 // 3 Security Manager : Jeong S, Kang S, Ju S
 async function addSecurityManager(connect){
@@ -91,8 +105,9 @@ async function addSecurityManager(connect){
     SManagerA.name = "Jeong S"
     SManagerB.name = "Kang S"
     SManagerC.name = "Ju S"
-
+    try{
     await registry.addAll([SManagerA,SManagerB,SManagerC])
+    }catch(e){console.log(e)}
 }
 // Worker A, Worker B, Worker C
 async function addWorker(connect){
@@ -105,10 +120,15 @@ async function addWorker(connect){
     let WorkerB = factory.newResource('org.factory', 'Worker', "2");
     let WorkerC = factory.newResource('org.factory', 'Worker', "3");
     WorkerA.departmentID = Logistics
+    WorkerA.name = "Lee A"
+    console.log(WorkerA)
     WorkerB.departmentID = Materials
+    WorkerB.name = "Hun A"
     WorkerC.departmentID = Assembly
-
+    WorkerC.name = "Jaegal A"
+    try{
     await registry.addAll([WorkerA,WorkerB,WorkerC])
+    }catch(e){console.log(e)}
 }
 async function addDevices(connect){
     let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.Worker');
@@ -126,29 +146,39 @@ async function addDevices(connect){
     let Worker_C = factory.newRelationship('org.factory', 'Worker', '3')
 
     let device1 = {
-        'deviceType':'IoT Machine 1',
-        'deviceDesc':'Make Logistics Happy',
-        'deviceUser': Worker_A.getIdentifier(),
-        'deviceManager': Kim_A.getIdentifier(),
-        'currentDepartment': Logistics.getIdentifier(),
+        'name' : 'IoT Machine 1',
+        'DeviceType':'IoT Machine 1',
+        'DeviceDesc':'Make Logistics Happy',
+        'DeviceUser': Worker_A,//.getFullyQualifiedIdentifier(),
+        'DeviceManager': Kim_A,//.getFullyQualifiedIdentifier(),
+        'currentDepartment': Logistics,//.getFullyQualifiedIdentifier(),
     }
     let device2 = {
-        'deviceType':'IoT Machine 2',
-        'deviceDesc':'Make Materials Happy',
-        'deviceUser': Worker_B.getIdentifier(),
-        'deviceManager':Lee_B.getIdentifier(),
-        'currentDepartment': Materials.getIdentifier(),
+        'name' : 'IoT Machine 2',
+        'DeviceType':'IoT Machine 2',
+        'DeviceDesc':'Make Materials Happy',
+        'DeviceUser': Worker_B,//.getFullyQualifiedIdentifier(),
+        'DeviceManager':Lee_B,//.getFullyQualifiedIdentifier(),
+        'currentDepartment': Materials,//.getFullyQualifiedIdentifier(),
     }
     let device3 = {
-        'deviceType':'IoT Machine 3',
-        'deviceDesc':'Make Assembly Happy',
-        'deviceUser': Worker_C.getIdentifier(),
-        'deviceManager': Park_C.getIdentifier(),
-        'currentDepartment': Assembly.getIdentifier(),
+        'name' : 'IoT Machine 3',
+        'DeviceType':'IoT Machine 3',
+        'DeviceDesc':'Make Assembly Happy',
+        'DeviceUser': Worker_C,//.getFullyQualifiedIdentifier(),
+        'DeviceManager': Park_C,//.getFullyQualifiedIdentifier(),
+        'currentDepartment': Assembly,//.getFullyQualifiedIdentifier(),
     }
-    await addDevice(await getDeviceInformation(device1), connect);
-    await addDevice(await getDeviceInformation(device2), connect);
-    await addDevice(await getDeviceInformation(device3), connect);
+    let deviceA = await getDeviceInformation(device1);
+    console.log(`deviceA :`)
+    console.log(deviceA)
+    let deviceB = await getDeviceInformation(device2);
+    let deviceC = await getDeviceInformation(device3);
+    try{
+    await addDevice(deviceA, connect);
+    await addDevice(deviceB, connect);
+    await addDevice(deviceC, connect);
+    }catch(e){console.log(e)}
 }
 
 
@@ -167,20 +197,12 @@ async function getDeviceInformation(device){
     let processAll = process.all;
     let processRunning = process.running;
     let processes = `All: ${processAll}, Running: ${processRunning}`
-    let deviceType = device.deviceType;
-    let deviceDesc = device.deviceDesc;
-    let deviceUser = device.deviceUser;
-    let deviceManager = device.deviceManager
-
-    return {
-        'cpu':cpu,
-        'mac':mac,
-        'processes':processes,
-        'deviceType':deviceType,
-        'deviceDesc':deviceDesc,
-        'deviceUser':deviceUser,
-        'deviceManager':deviceManager
-    }
+    
+    device.CPUInfomation = cpu
+    device.MACAddress = mac
+    device.Processes = processes
+    
+    return device
 }
 
 async function addDevice(device, connect){
@@ -189,13 +211,15 @@ async function addDevice(device, connect){
     let newDevice = factory.newResource('org.factory', 'Device', `Device:${getCurrentTimestamp()}`)
     let deviceUser = factory.newRelationship('org.factory', 'Worker', device.deviceUser)
     let deviceManager = factory.newRelationship('org.factory', 'DeviceManager', device.deviceManager)
-    newDevice.CPUInfomation = device.cpu;
-    newDevice.MACAddress = device.mac,
-    newDevice.Processes = device.processes,
-    newDevice.DeviceType = device.deviceType,
-    newDevice.DeviceDesc = device.deviceDesc,
-    newDevice.DeviceUser = deviceUser,
-    newDevice.DeviceManager = deviceManager
+    newDevice.name = device.name;
+    newDevice.DeviceType = device.DeviceType,
+    newDevice.DeviceDesc = device.DeviceDesc,
+    newDevice.DeviceUser = device.DeviceUser,
+    newDevice.DeviceManager = device.DeviceManager
+    newDevice.currentDepartment = device.currentDepartment
+    newDevice.CPUInfomation = device.CPUInfomation;
+    newDevice.MACAddress = device.MACAddress,
+    newDevice.Processes = device.Processes
     await deviceRegistry.add(newDevice);
     console.log("Device Added.")
 }

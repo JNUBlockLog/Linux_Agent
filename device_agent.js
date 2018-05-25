@@ -1,23 +1,38 @@
+const si = require('systeminformation')
+let lookup = require('util').promisify(require('dns').lookup);
 // function updateLocation()
 // function updateLiveInfo()
-// function isNetworkConnected()
-// function getDeviceID();
-async function main(){
-    testMain();
-    setTimeout(main, 10000) // ms, 10s = 10 * 1000
+async function getDeviceID(){
+    let device = {
+        'deviceType':'IoT Machine 1',
+        'deviceDesc':'Make Logistics Happy',
+        'deviceUser': 'Worker#1',//Worker_A.getIdentifier(),
+        'deviceManager': 'Worker#1',//Kim_A.getIdentifier(),
+        'currentDepartment': 'Worker#1',//Logistics.getIdentifier(),
+    }
 }
-async function testMain(){
-    console.log(await checkOrderer());
+
+async function main(){
+    loop()
+}
+function loop(){
+    updateLiveInfo();
+    setTimeout(loop, 10000)// ms, 10s = 10 * 1000
+}
+async function updateLiveInfo(){
+    if(await isNetworkingConnected()){
+        let refreshedDevice = await getDeviceInformation(device)
+
+        console.log(refreshedDevice);
+    }
 }
 function findMACbyiface(nics, iface){
     return nics.filter(
         function(nics){return nics.iface == iface}
     )
 }
-
-async function checkOrderer(){
+async function isNetworkingConnected(){
     try{
-        let lookup = require('util').promisify(require('dns').lookup);
         let err = await lookup('www.google.com');
     } catch(e){
         return false;
@@ -35,20 +50,12 @@ async function getDeviceInformation(device){
     let processAll = process.all;
     let processRunning = process.running;
     let processes = `All: ${processAll}, Running: ${processRunning}`
-    let deviceType = device.deviceType;
-    let deviceDesc = device.deviceDesc;
-    let deviceUser = device.deviceUser;
-    let deviceManager = device.deviceManager
 
-    return {
-        'cpu':cpu,
-        'mac':mac,
-        'processes':processes,
-        'deviceType':deviceType,
-        'deviceDesc':deviceDesc,
-        'deviceUser':deviceUser,
-        'deviceManager':deviceManager
-    }
+    device.cpu = cpu
+    device.mac = mac
+    device.processes = processes
+
+    return device
 }
 
 main();
