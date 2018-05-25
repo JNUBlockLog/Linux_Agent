@@ -5,8 +5,10 @@ import App from './Baseline.vue'
 import VueRouter from 'vue-router'
 
 import ContainerMain from './ContainerMain.vue'
-import ContainerSchedule from './ContainerSchedule.vue'
-import ContainerShowRoom from './ContainerShowRoom.vue'
+import ContainerAPList from './ContainerAPList.vue'
+import ContainerDeviceList from './ContainerDeviceList.vue'
+import ContainerDeviceMovement from './ContainerDeviceMovement.vue'
+import ContainerNetworkOverview from './ContainerNetworkOverview.vue'
 
 Vue.use(Vuetify)
 Vue.use(VueRouter)
@@ -17,11 +19,17 @@ const router = new VueRouter({
     path:'/',
     component: ContainerMain
   },{
-    path:'/schedule',
-    component: ContainerSchedule
+    path:'/AP_list',
+    component: ContainerAPList
   },{
-    path:'/showroom',
-    component: ContainerShowRoom
+    path:'/device_list',
+    component: ContainerDeviceList
+  },{
+    path:'/device_movement',
+    component: ContainerDeviceMovement
+  },{
+    path:'/network_overview',
+    component: ContainerNetworkOverview
   }]
 })
 

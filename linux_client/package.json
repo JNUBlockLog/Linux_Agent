@@ -13,6 +13,7 @@
     "stop": "pm2 stop all"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "express": "^4.16.3",
     "material-design-icons-iconfont": "^3.0.3",
     "vue": "^2.5.11",

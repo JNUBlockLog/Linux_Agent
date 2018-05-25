@@ -11,23 +11,64 @@
             <v-icon>home</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title>Main</v-list-tile-title>
+            <v-list-tile-title>개요</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile :to="{path:'/schedule'}">
+        <v-list-tile :to="{path:'/device_list'}">
           <v-list-tile-action>
-            <v-icon>schedule</v-icon>
+            <v-icon>forward</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title>Set Schedule</v-list-tile-title>
+            <v-list-tile-title>장비 현황 열람</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile :to="{path:'/showroom'}">
+        <v-list-tile :to="{path:'/AP_list'}">
+          <v-list-tile-action>
+            <v-icon>signal_wifi_4_bar_lock</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>AP 현황 열람</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile :to="{path:'/device_movement'}">
+          <v-list-tile-action>
+            <v-icon>list</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>장비 이동 기록</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-divider></v-divider>
+        <v-list-tile :to="{path:'/network_overview'}">
           <v-list-tile-action>
             <v-icon>dashboard</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title>Show Emergency Room</v-list-tile-title>
+            <v-list-tile-title>네트워크 개요</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile :to="{path:'/inbound_ip'}">
+          <v-list-tile-action>
+            <v-icon>transit_enterexit</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>인바운드 IP</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile :to="{path:'/blocked_ip'}">
+          <v-list-tile-action>
+            <v-icon>block</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>차단 IP 목록</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile :to="{path:'/packet_filtering'}">
+          <v-list-tile-action>
+            <v-icon>filter_list</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>패킷 필터링 규칙 관리</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
