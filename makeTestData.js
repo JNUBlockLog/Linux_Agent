@@ -28,19 +28,11 @@ try{
 
 async function main(){
     let connection = await bizNetworkConnection.connect(cardName)
-//    await addDepartment(connection);
-//    await readLastDept();
-//    await addDeviceManager(connection);
-//    await readLastDeviceMgr();
-//    await addSecurityManager(connection);
-//    await readLastSecuMgr();
-//    await addWorker(connection);
-    let device1 = {'deviceType':'Hi', 'deviceDesc':'Device 1', 'deviceUser':'1','deviceManager':'1' }
-      await addDevice(await getDeviceInformation(device1), connection);
-    let device2 = {'deviceType':'Hello', 'deviceDesc':'Device 2', 'deviceUser':'2','deviceManager':'1' }
-      await addDevice(await getDeviceInformation(device2), connection);
-    let device3 = {'deviceType':'Bye', 'deviceDesc':'Device 3', 'deviceUser':'3','deviceManager':'2' }
-      await addDevice(await getDeviceInformation(device3), connection);
+    await addDepartment(connection); // 4 Department : Security, Logistics, Materials, Assembly
+    await addDeviceManager(connection); // 3 Device Manager : Kim A, Lee B, Park C
+    await addSecurityManager(connection); // 3 Security Manager : Jeong S, Kang S, Ju S
+    await addWorker(connection);
+    await addDevices(connection);
 
     await readAllDevice();
     console.log('------------')
@@ -51,6 +43,114 @@ function getCurrentTimestamp(){
     //Now returns timestamp.
     return moment().unix();
 }
+// 4 Department : Security(1), Logistics(2), Materials(3), Assembly(4)
+async function addDepartment(connect){
+    let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.Department');
+    let factory = connect.getFactory();
+    let SecurityDepartment = factory.newResource('org.factory', 'Department', "1");
+    SecurityDepartment.name = "Security"
+    let LogisticsDepartment = factory.newResource('org.factory', 'Department', "2");
+    LogisticsDepartment.name = "Logistics"
+    let MaterialsDepartment = factory.newResource('org.factory', 'Department', "3");
+    MaterialsDepartment.name = "Materials"
+    let AssemblyDepartment = factory.newResource('org.factory', 'Department', "4");
+    AssemblyDepartment.name = "Assembly"
+    await registry.addAll([SecurityDepartment, LogisticsDepartment, MaterialsDepartment, AssemblyDepartment])
+}
+// 3 Device Manager : Kim A, Lee B, Park C
+async function addDeviceManager(connect){
+    let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.DeviceManager');
+    let factory = connect.getFactory();
+    let dept = factory.newRelationship('org.factory', 'Department', '1')
+
+    let DManagerA = factory.newResource('org.factory', 'DeviceManager', "1");
+    DManagerA.departmentID = dept
+    let DManagerB = factory.newResource('org.factory', 'DeviceManager', "2");
+    DManagerB.departmentID = dept
+    let DManagerC = factory.newResource('org.factory', 'DeviceManager', "3");
+    DManagerC.departmentID = dept
+
+    DManagerA.name = "Kim A"
+    DManagerB.name = "Lee B"
+    DManagerC.name = "Park C"
+    
+    await registry.addAll([DManagerA,DManagerB,DManagerC])
+}
+// 3 Security Manager : Jeong S, Kang S, Ju S
+async function addSecurityManager(connect){
+    let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.SecurityManager');
+    let factory = connect.getFactory();
+    let Security = factory.newRelationship('org.factory', 'Department', '1') // Security
+    let SManagerA = factory.newResource('org.factory', 'SecurityManager', "1");
+    SManagerA.departmentID = Security
+    let SManagerB = factory.newResource('org.factory', 'SecurityManager', "2");
+    SManagerB.departmentID = Security
+    let SManagerC = factory.newResource('org.factory', 'SecurityManager', "3");
+    SManagerC.departmentID = Security
+
+    SManagerA.name = "Jeong S"
+    SManagerB.name = "Kang S"
+    SManagerC.name = "Ju S"
+
+    await registry.addAll([SManagerA,SManagerB,SManagerC])
+}
+// Worker A, Worker B, Worker C
+async function addWorker(connect){
+    let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.Worker');
+    let factory = connect.getFactory();
+    let Logistics = factory.newRelationship('org.factory', 'Department', '2')
+    let Materials = factory.newRelationship('org.factory', 'Department', '3')
+    let Assembly = factory.newRelationship('org.factory', 'Department', '4')
+    let WorkerA = factory.newResource('org.factory', 'Worker', "1");
+    let WorkerB = factory.newResource('org.factory', 'Worker', "2");
+    let WorkerC = factory.newResource('org.factory', 'Worker', "3");
+    WorkerA.departmentID = Logistics
+    WorkerB.departmentID = Materials
+    WorkerC.departmentID = Assembly
+
+    await registry.addAll([WorkerA,WorkerB,WorkerC])
+}
+async function addDevices(connect){
+    let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.Worker');
+    let factory = connect.getFactory();
+    let Logistics = factory.newRelationship('org.factory', 'Department', '2')
+    let Materials = factory.newRelationship('org.factory', 'Department', '3')
+    let Assembly = factory.newRelationship('org.factory', 'Department', '4')
+
+    let Kim_A = factory.newRelationship('org.factory', 'DeviceManager', '1')
+    let Lee_B = factory.newRelationship('org.factory', 'DeviceManager', '2')
+    let Park_C = factory.newRelationship('org.factory', 'DeviceManager', '3')
+
+    let Worker_A = factory.newRelationship('org.factory', 'Worker', '1')
+    let Worker_B = factory.newRelationship('org.factory', 'Worker', '2')
+    let Worker_C = factory.newRelationship('org.factory', 'Worker', '3')
+
+    let device1 = {
+        'deviceType':'IoT Machine 1',
+        'deviceDesc':'Make Logistics Happy',
+        'deviceUser': Worker_A.getIdentifier(),
+        'deviceManager': Kim_A.getIdentifier(),
+        'currentDepartment': Logistics.getIdentifier(),
+    }
+    let device2 = {
+        'deviceType':'IoT Machine 2',
+        'deviceDesc':'Make Materials Happy',
+        'deviceUser': Worker_B.getIdentifier(),
+        'deviceManager':Lee_B.getIdentifier(),
+        'currentDepartment': Materials.getIdentifier(),
+    }
+    let device3 = {
+        'deviceType':'IoT Machine 3',
+        'deviceDesc':'Make Assembly Happy',
+        'deviceUser': Worker_C.getIdentifier(),
+        'deviceManager': Park_C.getIdentifier(),
+        'currentDepartment': Assembly.getIdentifier(),
+    }
+    await addDevice(await getDeviceInformation(device1), connect);
+    await addDevice(await getDeviceInformation(device2), connect);
+    await addDevice(await getDeviceInformation(device3), connect);
+}
+
 
 function findMACbyiface(nics, iface){
     return nics.filter(
@@ -83,67 +183,6 @@ async function getDeviceInformation(device){
     }
 }
 
-async function addDepartment(connect){
-    let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.Department');
-    let factory = connect.getFactory();
-    let thing1 = factory.newResource('org.factory', 'Department', "1");
-    let thing2 = factory.newResource('org.factory', 'Department', "2");
-    thing1.name = "Device"
-    thing2.name = "Security"
-    await registry.addAll([thing1, thing2])
-}
-
-async function addDeviceManager(connect){
-    let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.DeviceManager');
-    let factory = connect.getFactory();
-    let dept = factory.newRelationship('org.factory', 'Department', '1')
-
-    let thing1 = factory.newResource('org.factory', 'DeviceManager', "1");
-    thing1.departmentID = dept
-    let thing2 = factory.newResource('org.factory', 'DeviceManager', "2");
-    thing2.departmentID = dept
-    let thing3 = factory.newResource('org.factory', 'DeviceManager', "3");
-    thing3.departmentID = dept
-
-    thing1.name = "MgrDevice"
-    thing2.name = "Security"
-    thing3.name = "Security"
-    
-    await registry.addAll([thing1,thing2,thing3])
-}
-
-async function addSecurityManager(connect){
-    let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.SecurityManager');
-    let factory = connect.getFactory();
-    let dept = factory.newRelationship('org.factory', 'Department', '2')
-    let thing1 = factory.newResource('org.factory', 'DeviceManager', "1");
-    thing1.departmentID = dept
-    let thing2 = factory.newResource('org.factory', 'DeviceManager', "2");
-    thing2.departmentID = dept
-    let thing3 = factory.newResource('org.factory', 'DeviceManager', "3");
-    thing3.departmentID = dept
-
-    thing1.name = "SecDevice"
-    thing2.name = "Security"
-    thing3.name = "Security"
-
-    await registry.addAll([thing1,thing2,thing3])
-}
-
-async function addWorker(connect){
-    let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.Worker');
-    let factory = connect.getFactory();
-    let dept = factory.newRelationship('org.factory', 'Department', '1')
-    let thing1 = factory.newResource('org.factory', 'Worker', "1");
-    let thing2 = factory.newResource('org.factory', 'Worker', "2");
-    let thing3 = factory.newResource('org.factory', 'Worker', "3");
-    thing1.departmentID = dept
-    thing2.departmentID = dept
-    thing3.departmentID = dept
-
-    await registry.addAll([thing1,thing2,thing3])
-}
-
 async function addDevice(device, connect){
     let deviceRegistry = await bizNetworkConnection.getAssetRegistry('org.factory.Device');
     let factory = connect.getFactory();
@@ -160,6 +199,7 @@ async function addDevice(device, connect){
     await deviceRegistry.add(newDevice);
     console.log("Device Added.")
 }
+
 async function addMaterialsWorker(){}
 async function addLogisticsWorker(){}
 async function addAssemblyWorker(){}
