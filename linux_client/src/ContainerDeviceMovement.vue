@@ -1,15 +1,14 @@
 <template id="container-schedule">
     <v-container>
-        <h1>Hello ShowRoom!</h1>
-        <v-card>
-            <h1>Hello ShowRoom</h1>
-        </v-card>
+        <device-movement-table></device-movement-table>
     </v-container>
 </template>
 
 <script>
+import DeviceMovementTable from './components/DeviceMovementTable.vue'
 export default{
-    
+    name: "DeviceMovementPage",
+    components : {DeviceMovementTable, }
 }
 </script>
 

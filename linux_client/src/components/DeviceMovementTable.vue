@@ -1,7 +1,7 @@
 <template>
     <v-card>
         <v-card-title>
-            <h2>장비 목록</h2>
+            <h2>장비 이동 현황</h2>
             <v-spacer></v-spacer>
             <v-text-field
               v-model="search"

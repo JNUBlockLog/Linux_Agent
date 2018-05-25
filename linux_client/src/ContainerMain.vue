@@ -18,7 +18,7 @@ import CardBarChart from './components/CardBarChart.vue'
 import CardLineChart from './components/CardLineChart.vue'
 
 export default{
-    name: "main",
+    name: "mainPage",
     components : {CardTable, CardBarChart, CardLineChart, DeviceListTable, }
 }
 </script>

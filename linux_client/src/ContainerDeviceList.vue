@@ -1,15 +1,14 @@
 <template id="container-schedule">
     <v-container>
-        <h1>Hello Scheduler!</h1>
-        <v-card>
-            <h1>Hello Scheduler</h1>
-        </v-card>
+        <device-list-table></device-list-table>
     </v-container>
 </template>
 
 <script>
+import DeviceListTable from './components/DeviceListTable.vue'
 export default{
-    
+    name: "DeviceListPage",
+    components : {DeviceListTable, }
 }
 </script>
 
