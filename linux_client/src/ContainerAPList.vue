@@ -1,15 +1,14 @@
-<template id="container-schedule">
+<template id="container-ap">
     <v-container>
-        <h1>Hello ShowRoom!</h1>
-        <v-card>
-            <h1>Hello ShowRoom</h1>
-        </v-card>
+        <a-p-list-table></a-p-list-table>
     </v-container>
 </template>
 
 <script>
+import APListTable from './components/APListTable.vue'
 export default{
-    
+    name: "APListPage",
+    components : {APListTable, }
 }
 </script>
 

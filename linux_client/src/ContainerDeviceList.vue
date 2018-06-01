@@ -1,4 +1,4 @@
-<template id="container-schedule">
+<template id="container-device">
     <v-container>
         <device-list-table></device-list-table>
     </v-container>

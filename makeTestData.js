@@ -5,7 +5,7 @@ const si = require('systeminformation')
 var cardName = "admin@factory-network";
 
 bizNetworkConnection = new composer.BusinessNetworkConnection();
-let connect = '' // BusinessNetworkDefinition
+let definition = '' // BusinessNetworkDefinition
 
 bizNetworkConnection.on('event', (event)=>{
     if(event.$type == 'refreshRequest'){
@@ -27,18 +27,29 @@ try{
 }
 
 async function main(){
-    let connection = await bizNetworkConnection.connect(cardName)
+    let definition = await bizNetworkConnection.connect(cardName)
     console.log("[INFO] BizNetworkConnection Connected");
-    await addDepartment(connection); // 4 Department : Security, Logistics, Materials, Assembly
+    console.log("[INFO] Removing all datas..");
+
+    await removeAllAsset('org.factory.WiFiAP');
+    await removeAllAsset('org.factory.Device');
+    await removeAllParticipant('org.factory.Department');
+    await removeAllParticipant('org.factory.SecurityManager');
+    await removeAllParticipant('org.factory.DeviceManager');
+    await removeAllParticipant('org.factory.Worker');
+
+    await addDepartment(definition); // 4 Department : Security, Logistics, Materials, Assembly
     console.log("[INFO] Department added");
-    await addDeviceManager(connection); // 3 Device Manager : Kim A, Lee B, Park C
+    await addDeviceManager(definition); // 3 Device Manager : Kim A, Lee B, Park C
     console.log("[INFO] DeviceManager Added");
-    await addSecurityManager(connection); // 3 Security Manager : Jeong S, Kang S, Ju S
+    await addSecurityManager(definition); // 3 Security Manager : Jeong S, Kang S, Ju S
     console.log("[INFO] SecurityManager Added");
-    await addWorker(connection);
+    await addWorker(definition);
     console.log("[INFO] Worker Added");
-    await addDevices(connection);
+    await addDevices(definition);
     console.log("[INFO] Devices Added");
+
+    await addWiFiAP(definition);
 
     await readAllDevice();
     console.log('------------')
@@ -50,9 +61,9 @@ function getCurrentTimestamp(){
     return moment().unix();
 }
 // 4 Department : Security(1), Logistics(2), Materials(3), Assembly(4)
-async function addDepartment(connect){
+async function addDepartment(definit){
     let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.Department');
-    let factory = connect.getFactory();
+    let factory = definit.getFactory();
     let SecurityDepartment = factory.newResource('org.factory', 'Department', "1");
     SecurityDepartment.name = "Security"
     let LogisticsDepartment = factory.newResource('org.factory', 'Department', "2");
@@ -68,9 +79,9 @@ async function addDepartment(connect){
     }
 }
 // 3 Device Manager : Kim A, Lee B, Park C
-async function addDeviceManager(connect){
+async function addDeviceManager(definition){
     let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.DeviceManager');
-    let factory = connect.getFactory();
+    let factory = definition.getFactory();
     let dept = factory.newRelationship('org.factory', 'Department', '1')
 
     let DManagerA = factory.newResource('org.factory', 'DeviceManager', "1");
@@ -91,9 +102,9 @@ async function addDeviceManager(connect){
 
 }
 // 3 Security Manager : Jeong S, Kang S, Ju S
-async function addSecurityManager(connect){
+async function addSecurityManager(definition){
     let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.SecurityManager');
-    let factory = connect.getFactory();
+    let factory = definition.getFactory();
     let Security = factory.newRelationship('org.factory', 'Department', '1') // Security
     let SManagerA = factory.newResource('org.factory', 'SecurityManager', "1");
     SManagerA.departmentID = Security
@@ -110,9 +121,9 @@ async function addSecurityManager(connect){
     }catch(e){console.log(e)}
 }
 // Worker A, Worker B, Worker C
-async function addWorker(connect){
+async function addWorker(definition){
     let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.Worker');
-    let factory = connect.getFactory();
+    let factory = definition.getFactory();
     let Logistics = factory.newRelationship('org.factory', 'Department', '2')
     let Materials = factory.newRelationship('org.factory', 'Department', '3')
     let Assembly = factory.newRelationship('org.factory', 'Department', '4')
@@ -121,7 +132,6 @@ async function addWorker(connect){
     let WorkerC = factory.newResource('org.factory', 'Worker', "3");
     WorkerA.departmentID = Logistics
     WorkerA.name = "Lee A"
-    console.log(WorkerA)
     WorkerB.departmentID = Materials
     WorkerB.name = "Hun A"
     WorkerC.departmentID = Assembly
@@ -130,9 +140,31 @@ async function addWorker(connect){
     await registry.addAll([WorkerA,WorkerB,WorkerC])
     }catch(e){console.log(e)}
 }
-async function addDevices(connect){
+async function addWiFiAP(definition, department){
+    let registry = await bizNetworkConnection.getAssetRegistry('org.factory.WiFiAP');
+    let factory = definition.getFactory();
+    let department1 = factory.newRelationship('org.factory', 'Department', '1')
+    let AP1 = factory.newResource('org.factory', 'WiFiAP', `00:0a:95:9d:68:16`)
+    AP1.department = department1;
+    AP1.name = "물류1"
+
+    let department2 = factory.newRelationship('org.factory', 'Department', '1')
+    let AP2 = factory.newResource('org.factory', 'WiFiAP', `9d:68:16:00:0a:95`)
+    AP2.department = department2;
+    AP2.name = "자재1"
+
+    let department3 = factory.newRelationship('org.factory', 'Department', '1')
+    let AP3 = factory.newResource('org.factory', 'WiFiAP', `68:16:00:95:0a:9d`)
+    AP3.department = department3;
+    AP3.name = "조립1"
+    try{
+        await registry.addAll([AP1, AP2, AP3])
+    } catch(e){console.log(e)}
+}
+
+async function addDevices(definition){
     let registry = await bizNetworkConnection.getParticipantRegistry('org.factory.Worker');
-    let factory = connect.getFactory();
+    let factory = definition.getFactory();
     let Logistics = factory.newRelationship('org.factory', 'Department', '2')
     let Materials = factory.newRelationship('org.factory', 'Department', '3')
     let Assembly = factory.newRelationship('org.factory', 'Department', '4')
@@ -170,17 +202,14 @@ async function addDevices(connect){
         'currentDepartment': Assembly,//.getFullyQualifiedIdentifier(),
     }
     let deviceA = await getDeviceInformation(device1);
-    console.log(`deviceA :`)
-    console.log(deviceA)
     let deviceB = await getDeviceInformation(device2);
     let deviceC = await getDeviceInformation(device3);
     try{
-    await addDevice(deviceA, connect);
-    await addDevice(deviceB, connect);
-    await addDevice(deviceC, connect);
+    await addDevice(deviceA, definition);
+    await addDevice(deviceB, definition);
+    await addDevice(deviceC, definition);
     }catch(e){console.log(e)}
 }
-
 
 function findMACbyiface(nics, iface){
     return nics.filter(
@@ -205,9 +234,9 @@ async function getDeviceInformation(device){
     return device
 }
 
-async function addDevice(device, connect){
+async function addDevice(device, definition){
     let deviceRegistry = await bizNetworkConnection.getAssetRegistry('org.factory.Device');
-    let factory = connect.getFactory();
+    let factory = definition.getFactory();
     let newDevice = factory.newResource('org.factory', 'Device', `Device:${getCurrentTimestamp()}`)
     let deviceUser = factory.newRelationship('org.factory', 'Worker', device.deviceUser)
     let deviceManager = factory.newRelationship('org.factory', 'DeviceManager', device.deviceManager)
@@ -223,12 +252,6 @@ async function addDevice(device, connect){
     await deviceRegistry.add(newDevice);
     console.log("Device Added.")
 }
-
-async function addMaterialsWorker(){}
-async function addLogisticsWorker(){}
-async function addAssemblyWorker(){}
-async function addElecronicUnit(){}
-async function addPCB(){}
 
 async function readAllDevice(){
     let deviceRegistry = await bizNetworkConnection.getAssetRegistry('org.factory.Device');
@@ -271,14 +294,25 @@ async function readLastSecuMgr(){
     let last = await registry.get('2')
     console.log(last.name)
 }
-async function readAllMaterialsWorker(){}
-async function readAllLogisticsWorker(){}
-async function readAllAssemblyWorker(){}
-async function readAllElecronicUnit(){}
-async function readAllPCB(){}
-
 
 async function issueIdentityToMaterialsWorker(){}
 async function issueIdentityToLogisticsWorker(){}
 async function issueIdentityToAssemblyWorker(){}
 async function issueIdentityToElecronicUnit(){}
+
+async function getAll(FDQN){
+    let registry = await bizNetworkConnection.getParticipantRegistry(FDQN);
+    let list = await registry.getAll();
+    
+    return list;
+}
+async function removeAllParticipant(FDQN){
+    let registry = await bizNetworkConnection.getParticipantRegistry(FDQN);
+    let list = await registry.getAll();
+    await registry.removeAll(list)
+}
+async function removeAllAsset(FDQN){
+    let registry = await bizNetworkConnection.getAssetRegistry(FDQN);
+    let list = await registry.getAll();
+    await registry.removeAll(list)
+}
