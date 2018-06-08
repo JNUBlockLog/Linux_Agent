@@ -33,3 +33,20 @@ async function getDeviceID(){
         'currentDepartment': 'Worker#1',//Logistics.getIdentifier(),
     }
 }
+exports.getDeviceInformation = (device)=>{
+    let cpudata = await si.cpu();
+    let cpu = cpudata.manufacturer + cpudata.brand +' ' + cpudata.speed + 'GHz'
+    let nic = await si.networkInterfaces();
+    let defaultnic = await si.networkInterfaceDefault();
+    let mac = findMACbyiface(nic,defaultnic)[0].mac;
+    let process = await si.processes();
+    let processAll = process.all;
+    let processRunning = process.running;
+    let processes = `All: ${processAll}, Running: ${processRunning}`
+
+    device.cpu = cpu
+    device.mac = mac
+    device.processes = processes
+
+    return device
+}

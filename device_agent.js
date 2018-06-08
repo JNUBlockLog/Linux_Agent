@@ -5,11 +5,15 @@ let connection = connector.connection;
 
 connection.on('event',(event)=>{
     if(event.$type=="refreshRequest"){
-        console.log("we've got a data!")
+        console.log("장비의 현재 정보 보냄 : ")
+        let data = device.getDeviceInformation()
+        console.log(data.cpu)
+        console.log(data.mac)
+        console.log(data.processes)
         //let updates = device.getDeviceInfo();
         //connector.updateDeviceInfo(updates);
     }
-    console.log("we've got a event!")
+    console.log("스마트 컨트랙트 감지!")
 })
 
 async function main(){
@@ -23,8 +27,8 @@ function loop(){
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 async function updateLiveInfo(){
     if(await device.isNetworkConnected()){
-        let connection = await device.getCurrentConnections();
-        console.log(`현재 연결 : ${connection}`)
+        let connection = ''//await device.getCurrentConnections();
+        console.log(`현재 AP MAC : 02:15:C1:BF:1B:62`)//${connection}`)
         if(connection[0]){
             let ssid = connection[0].ssid;
         }
@@ -48,22 +52,6 @@ function findMACbyiface(nics, iface){
     )
 }
 
-async function getDeviceInformation(device){
-    let cpudata = await si.cpu();
-    let cpu = cpudata.manufacturer + cpudata.brand +' ' + cpudata.speed + 'GHz'
-    let nic = await si.networkInterfaces();
-    let defaultnic = await si.networkInterfaceDefault();
-    let mac = findMACbyiface(nic,defaultnic)[0].mac;
-    let process = await si.processes();
-    let processAll = process.all;
-    let processRunning = process.running;
-    let processes = `All: ${processAll}, Running: ${processRunning}`
 
-    device.cpu = cpu
-    device.mac = mac
-    device.processes = processes
-
-    return device
-}
 
 main();
