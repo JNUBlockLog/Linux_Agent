@@ -33,7 +33,7 @@ async function getDeviceID(){
         'currentDepartment': 'Worker#1',//Logistics.getIdentifier(),
     }
 }
-exports.getDeviceInformation = (device)=>{
+exports.getDeviceInformation = async (device)=>{
     let cpudata = await si.cpu();
     let cpu = cpudata.manufacturer + cpudata.brand +' ' + cpudata.speed + 'GHz'
     let nic = await si.networkInterfaces();

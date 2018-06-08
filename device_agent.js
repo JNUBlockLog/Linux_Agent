@@ -2,11 +2,11 @@ let device = require('./device_get_mac_addr.js')
 let connector = require('./connector.js');
 let os = require('os');
 let connection = connector.connection;
-
+let data = "";
 connection.on('event',(event)=>{
     if(event.$type=="refreshRequest"){
         console.log("장비의 현재 정보 보냄 : ")
-        let data = device.getDeviceInformation()
+        
         console.log(data.cpu)
         console.log(data.mac)
         console.log(data.processes)
@@ -29,6 +29,7 @@ async function updateLiveInfo(){
     if(await device.isNetworkConnected()){
         let connection = ''//await device.getCurrentConnections();
         console.log(`현재 AP MAC : 02:15:C1:BF:1B:62`)//${connection}`)
+        data = await device.getDeviceInformation()
         if(connection[0]){
             let ssid = connection[0].ssid;
         }
