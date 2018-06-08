@@ -2,10 +2,10 @@
 let lookup = require('util').promisify(require('dns').lookup);
 
 // Module Init
-wifi.init({
-    iface : null
-});
-let wifi_connection = require('util').promisify(wifi.getCurrentConnections)
+// wifi.init({
+//     iface : null
+// });
+//let wifi_connection = require('util').promisify(wifi.getCurrentConnections)
 
 exports.isNetworkConnected = async ()=>{
     try{
