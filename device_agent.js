@@ -47,12 +47,5 @@ async function updateLiveInfo(){
 }
 
 //let refreshedDevice = await getDeviceInformation(device)
-function findMACbyiface(nics, iface){
-    return nics.filter(
-        function(nics){return nics.iface == iface}
-    )
-}
-
-
 
 main();

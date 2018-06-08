@@ -1,4 +1,4 @@
-const wifi = require('node-wifi')
+//const wifi = require('node-wifi')
 let lookup = require('util').promisify(require('dns').lookup);
 
 // Module Init
@@ -49,4 +49,9 @@ exports.getDeviceInformation = async (device)=>{
     device.processes = processes
 
     return device
+}
+function findMACbyiface(nics, iface){
+    return nics.filter(
+        function(nics){return nics.iface == iface}
+    )
 }
