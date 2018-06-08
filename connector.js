@@ -1,5 +1,5 @@
 let moment = require('moment')
-let cardName = "admin@hackerton-network"
+let cardName = "admin@factory-network"
 
 let composer = require('composer-client');
 let BusinessNetworkConnection = composer.BusinessNetworkConnection;
@@ -14,6 +14,7 @@ exports.getAPListFromNetwork = getAPListFromNetwork;
 async function main(){
     definition = await connection.connect(cardName);
     factory = definition.getFactory();
+    console.log("Composer Connected.")
 }
 
 async function getAPListFromNetwork(){
@@ -33,15 +34,15 @@ async function getDeviceMACFrom(){
 }
 
 async function updateDeviceInfo(deviceInfo){
-    let serializer = '';
-    let transaction = {
-        $class : 'org.factory.UpdateDevice',
-  CPUInfomation : '',
-  MACAddress : deviceInfo.MACAddress,
-  Processes : '',
-  DeviceType : '',
-  DeviceDesc : '',
-}
+    let serializer = definition.getSerializer();
+    let transaction = serializer.fromJSON({
+        "$class" : 'org.factory.UpdateDevice',
+    "CPUInfomation" : '',
+    "MACAddress" : deviceInfo.MACAddress,
+    "Processes" : '',
+    "DeviceType" : '',
+    "DeviceDesc" : ''
+    });
     await connection.submitTransaction(transaction);
 }
 

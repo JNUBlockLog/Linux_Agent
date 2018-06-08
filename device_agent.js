@@ -1,13 +1,15 @@
 let device = require('./device_get_mac_addr.js')
-let connector = require('/connector.js');
+let connector = require('./connector.js');
 let os = require('os');
 let connection = connector.connection;
 
 connection.on('event',(event)=>{
     if(event.$type=="refreshRequest"){
-        let updates = device.getDeviceInfo();
-        connector.updateDeviceInfo(updates);
+        console.log("we've got a data!")
+        //let updates = device.getDeviceInfo();
+        //connector.updateDeviceInfo(updates);
     }
+    console.log("we've got a event!")
 })
 
 async function main(){
@@ -21,8 +23,11 @@ function loop(){
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 async function updateLiveInfo(){
     if(await device.isNetworkConnected()){
-        let connection = device.getCurrentConnections();
-        let ssid = connection[0].ssid;
+        let connection = await device.getCurrentConnections();
+        console.log(`현재 연결 : ${connection}`)
+        if(connection[0]){
+            let ssid = connection[0].ssid;
+        }
         
     //     if(isSSIDchanged(ssid)){
     //         updateDevice(ssid);

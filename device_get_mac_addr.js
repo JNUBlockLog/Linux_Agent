@@ -15,7 +15,7 @@ exports.isNetworkConnected = async ()=>{
     }
     return true;
 }
-exports.getCurrentConnections() = async ()=>{
+exports.getCurrentConnections = async ()=>{
     let err, connection = await wifi_connection();
     if (err) return err;
     else return connection;
